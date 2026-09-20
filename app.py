@@ -6,38 +6,111 @@ import plotly.graph_objects as go
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="Global Superstore - Revival Strategy Dashboard",
+    page_title="Global Superstore - Revival Strategy",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# --- STYLING ---
+# --- CUSTOM CSS STYLING ---
 st.markdown("""
 <style>
-    .main-title {
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+    }
+    
+    /* Header Container */
+    .header-container {
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+        padding: 30px;
+        border-radius: 12px;
+        color: white;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .header-title {
         font-size: 2.2rem;
         font-weight: 700;
-        color: #1E3A8A;
-        margin-bottom: 0px;
+        margin: 0;
+        letter-spacing: -0.5px;
     }
-    .sub-title {
+    .header-subtitle {
         font-size: 1.1rem;
-        color: #4B5563;
-        margin-bottom: 25px;
+        font-weight: 400;
+        opacity: 0.9;
+        margin-top: 5px;
     }
-    .metric-card {
-        background-color: #0F172A;
-        padding: 15px;
-        border-radius: 10px;
-        border-left: 5px solid #1E3A8A;
+
+    /* KPI Cards */
+    .kpi-card {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease;
+    }
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .kpi-label {
+        font-size: 0.9rem;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+    .kpi-value {
+        font-size: 2rem;
+        color: #0f172a;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    /* Strategy Cards */
+    .strategy-card {
+        background-color: #f8fafc;
+        padding: 20px;
+        border-radius: 12px;
+        border-left: 6px solid #2563eb;
+        border-top: 1px solid #e2e8f0;
+        border-right: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
+        height: 100%;
+    }
+    .strategy-card h4 {
+        color: #0f172a;
+        font-weight: 700;
+        margin-top: 0;
+    }
+    .strategy-card p {
+        color: #334155;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    .badge {
+        background-color: #dbeafe;
+        color: #1e40af;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # --- TITLE HEADER ---
-st.markdown('<p class="main-title">Global Superstore: Revival Strategy Dashboard</p>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">Executive Analytics Dashboard for the Board of Directors (Data 2011 - 2014)</p>', unsafe_allow_html=True)
+st.markdown("""
+<div class="header-container">
+    <p class="header-title">Global Superstore Analytics</p>
+    <p class="header-subtitle">Revival Strategy & Executive Performance Dashboard (2011 - 2014)</p>
+</div>
+""", unsafe_allow_html=True)
 
 # --- DATA LOADING & PREPROCESSING ---
 @st.cache_data
@@ -48,7 +121,6 @@ def load_data(file_source=None):
         else:
             df = pd.read_excel(file_source)
     else:
-        # Try local default filenames if available
         try:
             df = pd.read_csv('Global_Superstore2.csv', encoding='latin1')
         except FileNotFoundError:
@@ -57,7 +129,6 @@ def load_data(file_source=None):
             except FileNotFoundError:
                 return None
     
-    # Preprocessing
     df['Order Date'] = pd.to_datetime(df['Order Date'], dayfirst=True, errors='coerce')
     df['Ship Date'] = pd.to_datetime(df['Ship Date'], dayfirst=True, errors='coerce')
     
@@ -67,37 +138,32 @@ def load_data(file_source=None):
     df['Year-Month'] = df['Order Date'].dt.to_period('M').astype(str)
     df['Shipping_Ratio'] = df['Shipping Cost'] / df['Sales']
     
-    # Discount Ranges
     bins = [-0.01, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 1.0]
     labels = ['0%', '1-10%', '11-20%', '21-30%', '31-40%', '41-50%', '>50%']
     df['Discount_Range'] = pd.cut(df['Discount'], bins=bins, labels=labels)
     
     return df
 
-# Sidebar Data Upload
-st.sidebar.header("📁 Data Source")
-uploaded_file = st.sidebar.file_uploader("Upload File (CSV / Excel)", type=['csv', 'xlsx'])
+# --- SIDEBAR ---
+with st.sidebar:
+    st.image("https://cdn-icons-png.flaticon.com/512/3075/3075977.png", width=60)
+    st.markdown("### Data Source")
+    uploaded_file = st.file_uploader("Upload CSV / Excel", type=['csv', 'xlsx'])
+    
+    df_raw = load_data(uploaded_file)
+    if df_raw is None:
+        st.warning("Silakan unggah dataset Global_Superstore2.")
+        st.stop()
 
-df_raw = load_data(uploaded_file)
+    st.markdown("### Filter Analytics")
+    all_markets = ["All Markets"] + sorted(list(df_raw['Market'].dropna().unique()))
+    selected_market = st.selectbox("Market", all_markets)
 
-if df_raw is None:
-    st.info("👋 Silakan unggah file dataset `Global_Superstore2.csv` atau `Global_Superstore2.xlsx` pada sidebar di sebelah kiri untuk memulai dashboard.")
-    st.stop()
+    all_years = ["All Years"] + sorted(list(df_raw['Year'].dropna().unique().astype(int)))
+    selected_year = st.selectbox("Tahun", all_years)
 
-# --- SIDEBAR FILTERS ---
-st.sidebar.header("🔍 Filter Analytics")
-
-# Market Filter
-all_markets = ["All Markets"] + sorted(list(df_raw['Market'].dropna().unique()))
-selected_market = st.sidebar.selectbox("Pilih Market", all_markets)
-
-# Year Filter
-all_years = ["All Years"] + sorted(list(df_raw['Year'].dropna().unique().astype(int)))
-selected_year = st.sidebar.selectbox("Pilih Tahun", all_years)
-
-# Segment Filter
-all_segments = ["All Segments"] + sorted(list(df_raw['Segment'].dropna().unique()))
-selected_segment = st.sidebar.selectbox("Pilih Customer Segment", all_segments)
+    all_segments = ["All Segments"] + sorted(list(df_raw['Segment'].dropna().unique()))
+    selected_segment = st.selectbox("Customer Segment", all_segments)
 
 # Apply Filters
 df = df_raw.copy()
@@ -108,121 +174,137 @@ if selected_year != "All Years":
 if selected_segment != "All Segments":
     df = df[df['Segment'] == selected_segment]
 
-# --- KPI METRICS CARDS ---
+# --- KPI METRICS ---
 total_sales = df['Sales'].sum()
 total_profit = df['Profit'].sum()
 overall_margin = (total_profit / total_sales * 100) if total_sales > 0 else 0
 total_orders = df['Order ID'].nunique()
 
 col1, col2, col3, col4 = st.columns(4)
-with col1:
-    st.metric(label="💰 Total Sales", value=f"${total_sales:,.0f}")
-with col2:
-    st.metric(label="📈 Total Profit", value=f"${total_profit:,.0f}")
-with col3:
-    st.metric(label="📊 Profit Margin", value=f"{overall_margin:.2f}%")
-with col4:
-    st.metric(label="📦 Total Orders", value=f"{total_orders:,}")
 
-st.divider()
+col1.markdown(f"""
+<div class="kpi-card">
+    <div class="kpi-label">💰 Total Sales</div>
+    <div class="kpi-value">${total_sales:,.0f}</div>
+</div>
+""", unsafe_allow_html=True)
 
-# --- TABS ANALYSIS ---
+col2.markdown(f"""
+<div class="kpi-card">
+    <div class="kpi-label">📈 Total Profit</div>
+    <div class="kpi-value">${total_profit:,.0f}</div>
+</div>
+""", unsafe_allow_html=True)
+
+col3.markdown(f"""
+<div class="kpi-card">
+    <div class="kpi-label">📊 Profit Margin</div>
+    <div class="kpi-value" style="color: {'#10b981' if overall_margin > 0 else '#ef4444'};">{overall_margin:.2f}%</div>
+</div>
+""", unsafe_allow_html=True)
+
+col4.markdown(f"""
+<div class="kpi-card">
+    <div class="kpi-label">📦 Total Orders</div>
+    <div class="kpi-value">{total_orders:,}</div>
+</div>
+""", unsafe_allow_html=True)
+
+st.write("") # Spacer
+
+# --- GLOBAL PLOTLY CONFIG ---
+layout_config = dict(
+    plot_bgcolor='rgba(0,0,0,0)',
+    paper_bgcolor='rgba(0,0,0,0)',
+    margin=dict(l=20, r=20, t=50, b=20),
+    title_font=dict(family="Inter", size=18, color="#0f172a"),
+    font=dict(family="Inter", color="#475569")
+)
+
+# --- TABS ---
 tab1, tab2, tab3, tab4 = st.tabs([
-    "📈 Task 1: Overall Performance", 
-    "🎯 Task 2: Problem Areas (Drill-Down)", 
-    "🔍 Task 3: Root Cause Analysis", 
-    "🚀 Task 4: Revival Strategy"
+    "📈 Overall Performance", 
+    "🎯 Problem Areas", 
+    "🔍 Root Cause Analysis", 
+    "🚀 Revival Strategy"
 ])
 
 # ==========================================
 # TAB 1: OVERALL PERFORMANCE
 # ==========================================
 with tab1:
-    st.subheader("Evaluasi Performa Keseluruhan (2011 - 2014)")
-    st.write("Menganalisis tren penjualan, profitabilitas, serta pertumbuhan tahunan (YoY).")
+    st.markdown("#### Tren Pertumbuhan Bisnis")
     
-    col_t1_left, col_t1_right = st.columns([1, 1])
+    col_t1_left, col_t1_right = st.columns(2, gap="large")
     
     with col_t1_left:
-        # Yearly Summary Table & Chart
-        yearly_df = df.groupby('Year').agg({
-            'Sales': 'sum',
-            'Profit': 'sum',
-            'Quantity': 'sum'
-        }).reset_index()
-        
+        yearly_df = df.groupby('Year').agg({'Sales': 'sum', 'Profit': 'sum'}).reset_index()
         yearly_df['Profit Margin (%)'] = (yearly_df['Profit'] / yearly_df['Sales']) * 100
-        yearly_df['Sales YoY Growth (%)'] = yearly_df['Sales'].pct_change() * 100
-        yearly_df['Profit YoY Growth (%)'] = yearly_df['Profit'].pct_change() * 100
         
         fig_yearly = go.Figure()
-        fig_yearly.add_trace(go.Bar(x=yearly_df['Year'], y=yearly_df['Sales'], name='Sales ($)', marker_color='#3B82F6'))
-        fig_yearly.add_trace(go.Bar(x=yearly_df['Year'], y=yearly_df['Profit'], name='Profit ($)', marker_color='#10B981'))
-        fig_yearly.update_layout(title="Total Sales & Profit per Tahun", barmode='group', height=400)
+        fig_yearly.add_trace(go.Bar(x=yearly_df['Year'], y=yearly_df['Sales'], name='Sales', marker_color='#3b82f6', marker_line_width=0))
+        fig_yearly.add_trace(go.Bar(x=yearly_df['Year'], y=yearly_df['Profit'], name='Profit', marker_color='#10b981', marker_line_width=0))
+        fig_yearly.update_layout(**layout_config, title="Sales & Profit per Tahun", barmode='group', height=380)
+        fig_yearly.update_yaxes(gridcolor='#f1f5f9')
         st.plotly_chart(fig_yearly, use_container_width=True)
         
     with col_t1_right:
-        # Profit Margin Trend
         fig_margin = px.line(yearly_df, x='Year', y='Profit Margin (%)', markers=True, 
-                             title="Tren Profit Margin Tahunan (%)", color_discrete_sequence=['#8B5CF6'])
-        fig_margin.update_layout(height=400)
+                             title="Tren Profit Margin (%)", color_discrete_sequence=['#8b5cf6'])
+        fig_margin.update_layout(**layout_config, height=380)
+        fig_margin.update_yaxes(gridcolor='#f1f5f9')
+        fig_margin.update_traces(line=dict(width=3), marker=dict(size=8))
         st.plotly_chart(fig_margin, use_container_width=True)
         
-    # Monthly Trend
     monthly_df = df.groupby('Year-Month').agg({'Sales': 'sum', 'Profit': 'sum'}).reset_index()
-    fig_monthly = px.line(monthly_df, x='Year-Month', y=['Sales', 'Profit'], 
-                          title="Tren Bulanan Sales & Profit (2011 - 2014)",
-                          color_discrete_map={'Sales': '#2563EB', 'Profit': '#059669'})
-    fig_monthly.update_layout(height=400, xaxis_title="Tahun-Bulan", yaxis_title="Nilai ($)")
-    st.plotly_chart(fig_monthly, use_container_width=True)
+    fig_monthly = px.area(monthly_df, x='Year-Month', y=['Sales', 'Profit'], 
+                          title="Tren Bulanan (2011 - 2014)",
+                          color_discrete_map={'Sales': '#eff6ff', 'Profit': '#d1fae5'})
     
-    with st.expander("📄 Lihat Tabel Summary YoY"):
-        st.dataframe(yearly_df.style.format({
-            'Sales': '${:,.2f}',
-            'Profit': '${:,.2f}',
-            'Quantity': '{:,.0f}',
-            'Profit Margin (%)': '{:.2f}%',
-            'Sales YoY Growth (%)': '{:.2f}%',
-            'Profit YoY Growth (%)': '{:.2f}%'
-        }))
+    # Overlay lines for sharp edges over area
+    fig_monthly.add_trace(go.Scatter(x=monthly_df['Year-Month'], y=monthly_df['Sales'], mode='lines', line=dict(color='#2563eb', width=2), showlegend=False))
+    fig_monthly.add_trace(go.Scatter(x=monthly_df['Year-Month'], y=monthly_df['Profit'], mode='lines', line=dict(color='#059669', width=2), showlegend=False))
+    
+    fig_monthly.update_layout(**layout_config, height=400, xaxis_title="", yaxis_title="USD ($)")
+    fig_monthly.update_yaxes(gridcolor='#f1f5f9')
+    st.plotly_chart(fig_monthly, use_container_width=True)
 
 # ==========================================
 # TAB 2: PROBLEM AREAS
 # ==========================================
 with tab2:
-    st.subheader("Identifikasi Titik Kerugian (Drill-Down)")
+    st.markdown("#### Identifikasi Area Kerugian")
     
-    col_t2_1, col_t2_2 = st.columns([1, 1])
+    col_t2_1, col_t2_2 = st.columns(2, gap="large")
     
     with col_t2_1:
-        # Top 10 Loss Making Countries
-        country_df = df.groupby(['Market', 'Country']).agg({'Sales': 'sum', 'Profit': 'sum'}).reset_index()
+        country_df = df.groupby(['Market', 'Country']).agg({'Profit': 'sum'}).reset_index()
         top_loss_country = country_df.sort_values(by='Profit', ascending=True).head(10)
         
         fig_loss_country = px.bar(
             top_loss_country, x='Profit', y='Country', color='Market', orientation='h',
-            title="Top 10 Negara Pembuat Rugi Terbesar ($)",
-            color_discrete_sequence=px.colors.qualitative.Set2
+            title="10 Negara Penyumbang Rugi Terbesar",
+            color_discrete_sequence=px.colors.qualitative.Pastel
         )
-        fig_loss_country.update_layout(height=420)
+        fig_loss_country.update_layout(**layout_config, height=400)
+        fig_loss_country.update_xaxes(gridcolor='#f1f5f9')
         st.plotly_chart(fig_loss_country, use_container_width=True)
         
     with col_t2_2:
-        # Sub-Category Profitability
-        subcat_df = df.groupby('Sub-Category').agg({'Sales': 'sum', 'Profit': 'sum'}).reset_index()
+        subcat_df = df.groupby('Sub-Category').agg({'Profit': 'sum'}).reset_index()
         subcat_df['Status'] = np.where(subcat_df['Profit'] >= 0, 'Untung', 'Rugi')
         subcat_df = subcat_df.sort_values(by='Profit', ascending=True)
         
         fig_subcat = px.bar(
             subcat_df, x='Profit', y='Sub-Category', color='Status', orientation='h',
-            title="Profit / Kerugian per Sub-Kategori Produk",
-            color_discrete_map={'Untung': '#10B981', 'Rugi': '#EF4444'}
+            title="Profitabilitas Sub-Kategori Produk",
+            color_discrete_map={'Untung': '#10b981', 'Rugi': '#ef4444'}
         )
-        fig_subcat.update_layout(height=420)
+        fig_subcat.update_layout(**layout_config, height=400)
+        fig_subcat.update_xaxes(gridcolor='#f1f5f9')
         st.plotly_chart(fig_subcat, use_container_width=True)
 
-    # Matrix Market vs Sub-Category Profit Heatmap
-    st.subheader("🔥 Matrix Profitabilitas: Market vs Sub-Category")
+    st.markdown("#### Heatmap Profitabilitas: Market vs Sub-Category")
     pivot_matrix = df.pivot_table(index='Sub-Category', columns='Market', values='Profit', aggfunc='sum').fillna(0)
     fig_heatmap = px.imshow(
         pivot_matrix, 
@@ -232,111 +314,91 @@ with tab2:
         color_continuous_scale="RdYlGn",
         aspect="auto"
     )
-    fig_heatmap.update_layout(height=500)
+    fig_heatmap.update_layout(**layout_config, height=500)
+    fig_heatmap.update_layout(margin=dict(l=20, r=20, t=20, b=20))
     st.plotly_chart(fig_heatmap, use_container_width=True)
 
 # ==========================================
 # TAB 3: ROOT CAUSE ANALYSIS
 # ==========================================
 with tab3:
-    st.subheader("Analisis Akar Penyebab Masalah (Root Causes)")
+    st.markdown("#### Analisis Akar Masalah")
     
-    col_t3_1, col_t3_2 = st.columns([1, 1])
+    col_t3_1, col_t3_2 = st.columns(2, gap="large")
     
     with col_t3_1:
-        # Discount Level Impact
         discount_df = df.groupby('Discount_Range', observed=False).agg({
             'Order ID': 'count',
             'Sales': 'sum',
             'Profit': 'sum'
         }).reset_index()
         discount_df['Profit Margin (%)'] = (discount_df['Profit'] / discount_df['Sales']) * 100
-        discount_df['Status'] = np.where(discount_df['Profit'] >= 0, 'Positive Profit', 'Unprofitable')
+        discount_df['Status'] = np.where(discount_df['Profit'] >= 0, 'Untung', 'Rugi')
         
         fig_disc = px.bar(
             discount_df, x='Discount_Range', y='Profit', color='Status',
-            title="Dampak Tingkat Diskon Terhadap Total Profit ($)",
-            color_discrete_map={'Positive Profit': '#3B82F6', 'Unprofitable': '#DC2626'},
+            title="Dampak Diskon Terhadap Total Profit ($)",
+            color_discrete_map={'Untung': '#3B82F6', 'Rugi': '#DC2626'},
             text_auto='.2s'
         )
         fig_disc.add_hline(y=0, line_dash="dash", line_color="black")
         fig_disc.update_layout(height=420, xaxis_title="Rentang Diskon", yaxis_title="Total Profit ($)")
         st.plotly_chart(fig_disc, use_container_width=True)
-        
+                
     with col_t3_2:
-        # Shipping Cost Ratio by Ship Mode & Order Priority
-        ship_df = df.groupby(['Ship Mode', 'Order Priority']).agg({
-            'Sales': 'sum',
-            'Profit': 'sum',
-            'Shipping Cost': 'sum',
-            'Shipping_Ratio': 'mean'
-        }).reset_index()
+        ship_df = df.groupby(['Ship Mode', 'Order Priority']).agg({'Shipping_Ratio': 'mean'}).reset_index()
         ship_df['Shipping_Ratio (%)'] = ship_df['Shipping_Ratio'] * 100
         
         fig_ship = px.bar(
             ship_df, x='Ship Mode', y='Shipping_Ratio (%)', color='Order Priority', barmode='group',
-            title="Rasio Biaya Pengiriman Terhadap Sales (%)",
-            color_discrete_sequence=px.colors.qualitative.Dark24
+            title="Rasio Biaya Pengiriman terhadap Penjualan",
+            color_discrete_sequence=px.colors.qualitative.Safe
         )
-        fig_ship.update_layout(height=420, yaxis_title="Shipping Cost / Sales (%)")
+        fig_ship.update_layout(**layout_config, height=400, yaxis_title="Biaya Pengiriman / Sales (%)")
+        fig_ship.update_yaxes(gridcolor='#f1f5f9')
         st.plotly_chart(fig_ship, use_container_width=True)
 
-    st.warning("""
-    📌 **Temuan Utama Akar Masalah:**
-    1. **Erosi Profit Akibat Diskon**: Ketika diskon diberikan di atas **20%**, profitabilitas berbalik menjadi negatif secara signifikan.
-    2. **Biaya Pengiriman Tinggi**: Pengiriman dengan *Order Priority* Critical/High dan *Ship Mode* Same Day/First Class memiliki rasio biaya pengiriman yang tinggi yang menggerus profit di wilayah tertentu.
-    """)
+    st.info("Pemberian diskon di atas 20% adalah penyebab utama kerugian margin. Selain itu, mode pengiriman Same Day untuk prioritas Critical memakan biaya logistik yang tidak proporsional dengan nilai penjualan.")
 
 # ==========================================
 # TAB 4: REVIVAL STRATEGY
 # ==========================================
 with tab4:
-    st.subheader("🚀 Strategi Pemulihan (Revival Strategy) untuk Direksi")
-    
-    st.markdown("""
-    ### 🎯 Pesan Utama untuk Jajaran Direksi:
-    > **"Global Superstore tidak mengalami penurunan secara keseluruhan, namun profitabilitas tergerus hebat oleh praktik diskon tak terkontrol di atas 20% serta biaya logistik yang tidak efisien di negara-negara tertentu."**
-    """)
-    
-    st.divider()
-    
-    st.markdown("### 📋 3 Langkah Strategis Prioritas (6-12 Bulan Ke Depan)")
-    
-    col_s1, col_s2, col_s3 = st.columns(3)
+    st.markdown("#### Ringkasan Eksekutif")
+    st.write("Skala pendapatan global stabil, namun kebocoran profit terjadi secara masif pada transaksi dengan diskon tak terkontrol dan inefisiensi logistik pengiriman kilat. Tiga inisiatif strategis wajib dieksekusi:")
+    st.write("")
+
+    col_s1, col_s2, col_s3 = st.columns(3, gap="medium")
     
     with col_s1:
         st.markdown("""
-        <div class="metric-card">
-            <h4>1. Kebijakan Diskon Ketat (Discount Cap)</h4>
-            <p><b>Akar Masalah:</b> Diskon >20% menghasilkan kerugian bersih.</p>
-            <p><b>Aksi:</b> Batasi diskon maksimal 15-20% & butuh persetujuan khusus untuk diskon tinggi.</p>
-            <p><b>Owner:</b> Head of Sales & Commercial</p>
-            <p><b>KPI:</b> Rebound Profit Margin ke >14%</p>
+        <div class="strategy-card">
+            <span class="badge">Prioritas 1</span>
+            <h4 style="margin-top: 15px;">Kebijakan Batas Diskon</h4>
+            <p><b>Akar Masalah:</b> Diskon >20% menggerus profit hingga minus.</p>
+            <p><b>Tindakan:</b> Kunci sistem agar batas maksimal diskon 15%. Diskon lebih dari itu wajib melewati <i>approval</i> level manajer.</p>
+            <p><b>Target:</b> Recovery margin profit di atas 14%.</p>
         </div>
         """, unsafe_allow_html=True)
         
     with col_s2:
         st.markdown("""
-        <div class="metric-card">
-            <h4>2. Optimalisasi Logistik & Pengiriman</h4>
-            <p><b>Akar Masalah:</b> Rasio biaya pengiriman tinggi pada ekspedisi kilat.</p>
-            <p><b>Aksi:</b> Negosiasi ulang tarif vendor ekspedisi & evaluasi opsi pengiriman wilayah rugi.</p>
-            <p><b>Owner:</b> VP Supply Chain & Logistics</p>
-            <p><b>KPI:</b> Penurunan Shipping Ratio sebesar 15%</p>
+        <div class="strategy-card">
+            <span class="badge">Prioritas 2</span>
+            <h4 style="margin-top: 15px;">Rasionalisasi Logistik</h4>
+            <p><b>Akar Masalah:</b> Margin hilang akibat biaya <i>Same Day / First Class</i> pada order <i>Critical</i>.</p>
+            <p><b>Tindakan:</b> Negosiasi ulang kontrak vendor atau bebankan sebagian biaya premium langsung ke pelanggan.</p>
+            <p><b>Target:</b> Menurunkan rasio beban ongkos kirim sebesar 15%.</p>
         </div>
         """, unsafe_allow_html=True)
         
     with col_s3:
         st.markdown("""
-        <div class="metric-card">
-            <h4>3. Restrukturisasi Wilayah Rugi</h4>
-            <p><b>Akar Masalah:</b> Kerugian terkonsentrasi di 10 negara kunci.</p>
-            <p><b>Aksi:</b> Evaluasi portofolio produk & rasionalisasi harga di pasar pembuat rugi.</p>
-            <p><b>Owner:</b> Chief Strategy Officer & Regional Managers</p>
-            <p><b>KPI:</b> Peningkatan profit di wilayah rugi sebesar 25%</p>
+        <div class="strategy-card">
+            <span class="badge">Prioritas 3</span>
+            <h4 style="margin-top: 15px;">Restrukturisasi Wilayah</h4>
+            <p><b>Akar Masalah:</b> Beban kerugian terkonsentrasi di 10 negara spesifik.</p>
+            <p><b>Tindakan:</b> Hentikan penjualan sub-kategori yang terbukti rugi di negara tersebut, dan sesuaikan harga dasar (<i>base price</i>).</p>
+            <p><b>Target:</b> Meningkatkan profit region terdampak sebesar 25%.</p>
         </div>
         """, unsafe_allow_html=True)
-
-# Footer
-st.divider()
-st.caption("Global Superstore Analytics Dashboard | Developed with Streamlit & Plotly")
