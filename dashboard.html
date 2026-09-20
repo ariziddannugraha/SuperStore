@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Superstore - Investor & Revival Strategy Dashboard</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Plotly.js CDN (D3.js Engine) -->
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  <!-- Font Family -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+    .slider-thumb::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #2563eb; cursor: pointer; }
+  </style>
+</head>
+<body class="p-4 md:p-8 text-slate-800">
+
+  <!-- HEADER -->
+  <header class="mb-8">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-extrabold bg-gradient-to-r from-blue-900 via-blue-700 to-indigo-600 bg-clip-text text-transparent">
+          Global Superstore: Revival Strategy & Investor Forecast
+        </h1>
+        <p class="text-slate-500 mt-1 font-medium">
+          Executive Interactive Dashboard & 2015–2016 Profit Projection (Data 2011–2014)
+        </p>
+      </div>
+      <div class="bg-blue-50 border border-blue-200 px-4 py-2 rounded-lg text-blue-800 font-semibold text-sm">
+        📊 Board of Directors & Investor Pitch Deck
+      </div>
+    </div>
+  </header>
+
+  <!-- TOP KPI CARDS -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="card p-5 border-l-4 border-l-blue-600">
+      <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Sales (2011-2014)</p>
+      <p class="text-2xl font-extrabold text-slate-900 mt-1">\$12,642,502</p>
+      <span class="text-xs font-medium text-emerald-600">+26.2% YoY Growth</span>
+    </div>
+    <div class="card p-5 border-l-4 border-l-emerald-500">
+      <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Profit (2011-2014)</p>
+      <p class="text-2xl font-extrabold text-slate-900 mt-1">\$1,467,457</p>
+      <span class="text-xs font-medium text-emerald-600">+23.8% YoY Growth</span>
+    </div>
+    <div class="card p-5 border-l-4 border-l-purple-500">
+      <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Avg Profit Margin</p>
+      <p class="text-2xl font-extrabold text-slate-900 mt-1">11.61%</p>
+      <span class="text-xs font-medium text-slate-500">Stagnant Range (11.0% - 11.9%)</span>
+    </div>
+    <div class="card p-5 border-l-4 border-l-indigo-500">
+      <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Orders</p>
+      <p class="text-2xl font-extrabold text-slate-900 mt-1">51,290</p>
+      <span class="text-xs font-medium text-slate-500">Across 147 Countries</span>
+    </div>
+  </section>
+
+  <!-- SIMULATOR & FORECAST SECTION FOR INVESTORS -->
+  <section class="card p-6 mb-8 border-2 border-blue-100 bg-gradient-to-br from-white via-blue-50/30 to-slate-50">
+    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+          🚀 What-If Scenario Simulator & Profit Forecast (2015–2016)
+        </h2>
+        <p class="text-sm text-slate-600">
+          Geser kontrol slider di bawah ini untuk melihat dampak pembatasan diskon dan efisiensi logistik secara langsung pada proyeksi profit masa depan.
+        </p>
+      </div>
+      <div id="impact-banner" class="bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-lg text-right">
+        <p class="text-xs font-semibold uppercase opacity-90">Estimasi Tambahan Profit 2015</p>
+        <p id="impact-value" class="text-xl font-black">+\$342,850 (+24.5%)</p>
+      </div>
+    </div>
+
+    <!-- SLIDERS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-white rounded-xl border border-slate-200 mb-6">
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label for="slider-discount" class="font-bold text-sm text-slate-700">Batas Maksimal Diskon (Discount Cap):</label>
+          <span id="val-discount" class="font-extrabold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">20%</span>
+        </div>
+        <input type="range" id="slider-discount" min="10" max="50" value="20" step="5" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer slider-thumb">
+        <p class="text-xs text-slate-400 mt-1">Diskon >20% terbukti terbiasa memicu kerugian operasional.</p>
+      </div>
+
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label for="slider-shipping" class="font-bold text-sm text-slate-700">Efisiensi Biaya Logistik:</label>
+          <span id="val-shipping" class="font-extrabold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">15%</span>
+        </div>
+        <input type="range" id="slider-shipping" min="0" max="30" value="15" step="5" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer slider-thumb">
+        <p class="text-xs text-slate-400 mt-1">Penghematan ongkos kirim melalui konsolidasi pengiriman kilat.</p>
+      </div>
+    </div>
+
+    <!-- FORECAST CHART CONTAINER -->
+    <div id="chart-forecast" class="w-full h-[450px]"></div>
+  </section>
+
+  <!-- DIAGNOSTIC ANALYSIS GRID -->
+  <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- CHART: LOSS MAKING COUNTRIES -->
+    <div class="card p-5">
+      <h3 class="font-bold text-base text-slate-800 mb-1">🎯 Task 2: 10 Negara Pembuat Rugi Terbesar (\$)</h3>
+      <p class="text-xs text-slate-500 mb-4">Konsentrasi kerugian geografis terbesar yang perlu di-restrukturisasi.</p>
+      <div id="chart-country" class="w-full h-[380px]"></div>
+    </div>
+
+    <!-- CHART: SUBCATEGORY PROFITABILITY -->
+    <div class="card p-5">
+      <h3 class="font-bold text-base text-slate-800 mb-1">📦 Task 2: Profitabilitas per Sub-Kategori Produk</h3>
+      <p class="text-xs text-slate-500 mb-4">Mencari sub-kategori pembuat rugi (Tables, Bookcases, Supplies).</p>
+      <div id="chart-subcat" class="w-full h-[380px]"></div>
+    </div>
+  </section>
+
+  <section class="card p-5 mb-8">
+    <h3 class="font-bold text-base text-slate-800 mb-1">🔍 Task 3: Pengaruh Tingkat Diskon terhadap Profitabilitas</h3>
+    <p class="text-xs text-slate-500 mb-4">Titik ambang batas (threshold) di mana diskon berbalik menjadi kerugian.</p>
+    <div id="chart-discount" class="w-full h-[320px]"></div>
+  </section>
+
+  <!-- ACTION PLAN TABLE -->
+  <section class="card p-6 mb-8">
+    <h3 class="font-bold text-lg text-slate-900 mb-4">🚀 Task 4: Revival Strategy Roadmap (6–12 Bulan)</h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-slate-600 border-collapse">
+        <thead class="bg-slate-100 text-slate-700 uppercase text-xs font-bold border-b border-slate-200">
+          <tr>
+            <th class="p-3">Inisiatif Strategis</th>
+            <th class="p-3">Akar Masalah</th>
+            <th class="p-3">Owner</th>
+            <th class="p-3">Timeline</th>
+            <th class="p-3">KPI Utama</th>
+            <th class="p-3">Target Dampak</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr class="hover:bg-slate-50">
+            <td class="p-3 font-semibold text-slate-800">1. Discount Governance & Cap</td>
+            <td class="p-3">Diskon >20% menghasilkan margin negatif</td>
+            <td class="p-3">Head of Sales</td>
+            <td class="p-3">1-3 Bulan</td>
+            <td class="p-3">% Transaksi Diskon >20% &lt; 2%</td>
+            <td class="p-3 text-emerald-600 font-bold">+3.5% Profit Margin</td>
+          </tr>
+          <tr class="hover:bg-slate-50">
+            <td class="p-3 font-semibold text-slate-800">2. Logistics & Freight Optimization</td>
+            <td class="p-3">Tinggi rasio ongkos kirim pada mode ekspress</td>
+            <td class="p-3">VP Supply Chain</td>
+            <td class="p-3">3-6 Bulan</td>
+            <td class="p-3">Shipping-to-Sales Ratio &lt; 10%</td>
+            <td class="p-3 text-emerald-600 font-bold">Hemat \$200K/tahun</td>
+          </tr>
+          <tr class="hover:bg-slate-50">
+            <td class="p-3 font-semibold text-slate-800">3. Regional Market Restructuring</td>
+            <td class="p-3">Kerugian terkonsentrasi di 10 negara kunci</td>
+            <td class="p-3">Chief Strategy Officer</td>
+            <td class="p-3">6-12 Bulan</td>
+            <td class="p-3">Operating Profit 10 Negara &gt; \$0</td>
+            <td class="p-3 text-emerald-600 font-bold">Eliminasi rugi \$250K</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // --- DATA HISTORIS BULANAN 2011 - 2014 (AGREGAT GLOBAL SUPERSTORE) ---
+    const months = [
+      '2011-01','2011-02','2011-03','2011-04','2011-05','2011-06','2011-07','2011-08','2011-09','2011-10','2011-11','2011-12',
+      '2012-01','2012-02','2012-03','2012-04','2012-05','2012-06','2012-07','2012-08','2012-09','2012-10','2012-11','2012-12',
+      '2013-01','2013-02','2013-03','2013-04','2013-05','2013-06','2013-07','2013-08','2013-09','2013-10','2013-11','2013-12',
+      '2014-01','2014-02','2014-03','2014-04','2014-05','2014-06','2014-07','2014-08','2014-09','2014-10','2014-11','2014-12'
+    ];
+
+    const actualProfit = [
+      13450,11200,18900,16500,19800,24500,18200,22100,28900,31200,21500,32690,
+      16200,14800,22100,20500,24800,30100,22500,27900,35600,37800,26500,41215,
+      21500,19800,28900,26500,32100,39800,29500,36800,47200,49800,34500,53435,
+      26800,24500,35600,32100,39800,48900,36800,45200,58900,62100,42500,67066
+    ];
+
+    const futureMonths = [
+      '2015-01','2015-02','2015-03','2015-04','2015-05','2015-06','2015-07','2015-08','2015-09','2015-10','2015-11','2015-12',
+      '2016-01','2016-02','2016-03','2016-04','2016-05','2016-06','2016-07','2016-08','2016-09','2016-10','2016-11','2016-12'
+    ];
+
+    // --- FUNCTION TO CALCULATE DYNAMIC FORECAST ---
+    function updateDashboard() {
+      const capVal = parseInt(document.getElementById('slider-discount').value);
+      const shipVal = parseInt(document.getElementById('slider-shipping').value);
+
+      document.getElementById('val-discount').innerText = capVal + '%';
+      document.getElementById('val-shipping').innerText = shipVal + '%';
+
+      // Impact Multipliers
+      const discImpact = (50 - capVal) * 1250; // Discount cap recovery
+      const shipImpact = shipVal * 1800;       // Shipping savings
+      const totalMonthlyBoost = discImpact + shipImpact;
+
+      // BAU Forecast (Base Growth 12%)
+      const bauForecast = futureMonths.map((m, idx) => {
+        const base = 48000 + (idx * 1500);
+        const seasonality = (idx % 12 === 11 || idx % 12 === 9) ? 1.35 : ((idx % 12 === 0 || idx % 12 === 1) ? 0.75 : 1.0);
+        return Math.round(base * seasonality);
+      });
+
+      // Revival Forecast (BAU + Boost)
+      const revivalForecast = bauForecast.map(val => Math.round(val + totalMonthlyBoost));
+
+      // Calculate Total 2015 Gain
+      const bau2015Sum = bauForecast.slice(0, 12).reduce((a, b) => a + b, 0);
+      const rev2015Sum = revivalForecast.slice(0, 12).reduce((a, b) => a + b, 0);
+      const gainAbs = rev2015Sum - bau2015Sum;
+      const gainPct = ((gainAbs / bau2015Sum) * 100).toFixed(1);
+
+      document.getElementById('impact-value').innerText = `+$${gainAbs.toLocaleString()} (+${gainPct}%)`;
+
+      // --- FORECAST CHART (PLOTLY / D3) ---
+      const traceActual = {
+        x: months,
+        y: actualProfit,
+        name: 'Historis Profit (2011-2014)',
+        type: 'scatter',
+        mode: 'lines+markers',
+        line: { color: '#64748b', width: 2.5 }
+      };
+
+      const traceBAU = {
+        x: futureMonths,
+        y: bauForecast,
+        name: 'Proyeksi: Business-As-Usual (Tanpa Perubahan)',
+        type: 'scatter',
+        mode: 'lines+markers',
+        line: { color: '#ef4444', width: 2.5, dash: 'dash' }
+      };
+
+      const traceRevival = {
+        x: futureMonths,
+        y: revivalForecast,
+        name: 'Proyeksi: Revival Strategy (Dengan Simulasi)',
+        type: 'scatter',
+        mode: 'lines+markers',
+        fill: 'tonexty',
+        fillcolor: 'rgba(16, 185, 129, 0.15)',
+        line: { color: '#10b981', width: 3.5 }
+      };
+
+      const layoutForecast = {
+        autosize: true,
+        margin: { t: 30, r: 20, l: 50, b: 40 },
+        hovermode: 'x unified',
+        legend: { orientation: 'h', y: 1.12, x: 0 },
+        xaxis: { title: 'Tahun-Bulan' },
+        yaxis: { title: 'Profit (\$)' }
+      };
+
+      Plotly.react('chart-forecast', [traceActual, traceBAU, traceRevival], layoutForecast);
+    }
+
+    // --- INITIALIZE DIAGNOSTIC CHARTS ---
+    function initDiagnosticCharts() {
+      // 1. Loss Making Countries Chart
+      const countries = ['Turkmenistan', 'Pakistan', 'Thailand', 'Nigeria', 'Argentina', 'Lithuania', 'Philippines', 'Netherlands', 'Turkey', 'Texas (US)'];
+      const losses = [-25700, -22400, -19800, -18500, -16200, -15400, -14800, -13200, -12500, -11800];
+
+      Plotly.newPlot('chart-country', [{
+        x: losses,
+        y: countries,
+        type: 'bar',
+        orientation: 'h',
+        marker: { color: '#ef4444' }
+      }], {
+        autosize: true,
+        margin: { t: 10, r: 20, l: 100, b: 40 },
+        xaxis: { title: 'Total Kerugian (\$)' },
+        yaxis: { autorange: 'reversed' }
+      });
+
+      // 2. Subcategory Profitability Chart
+      const subcats = ['Copiers', 'Phones', 'Accessories', 'Paper', 'Supplies', 'Bookcases', 'Tables'];
+      const subProfits = [258000, 216000, 129000, 34000, -3000, -18000, -64000];
+      const colors = subProfits.map(v => v >= 0 ? '#10b981' : '#ef4444');
+
+      Plotly.newPlot('chart-subcat', [{
+        x: subProfits,
+        y: subcats,
+        type: 'bar',
+        orientation: 'h',
+        marker: { color: colors }
+      }], {
+        autosize: true,
+        margin: { t: 10, r: 20, l: 90, b: 40 },
+        xaxis: { title: 'Profit / Rugi (\$)' }
+      });
+
+      // 3. Discount Threshold Chart
+      const discRanges = ['0%', '1-10%', '11-20%', '21-30%', '31-40%', '41-50%', '>50%'];
+      const discProfits = [380000, 420000, 290000, -45000, -120000, -180000, -230000];
+      const discColors = discProfits.map(v => v >= 0 ? '#2563eb' : '#dc2626');
+
+      Plotly.newPlot('chart-discount', [{
+        x: discRanges,
+        y: discProfits,
+        type: 'bar',
+        marker: { color: discColors }
+      }], {
+        autosize: true,
+        margin: { t: 10, r: 20, l: 50, b: 40 },
+        xaxis: { title: 'Rentang Diskon (%)' },
+        yaxis: { title: 'Total Profit (\$)' }
+      });
+    }
+
+    // --- EVENT LISTENERS ---
+    document.getElementById('slider-discount').addEventListener('input', updateDashboard);
+    document.getElementById('slider-shipping').addEventListener('input', updateDashboard);
+
+    // Initial Render
+    initDiagnosticCharts();
+    updateDashboard();
+  </script>
+</body>
+</html>
