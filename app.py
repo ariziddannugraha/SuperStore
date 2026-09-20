@@ -27,7 +27,7 @@ st.markdown("""
         margin-bottom: 25px;
     }
     .metric-card {
-        background-color: #F3F4F6;
+        background-color: #0F172A;
         padding: 15px;
         border-radius: 10px;
         border-left: 5px solid #1E3A8A;
