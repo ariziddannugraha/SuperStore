@@ -121,13 +121,13 @@ def load_data(file_source=None):
         else:
             df = pd.read_excel(file_source)
     else:
+        gdrive_url = 'https://drive.google.com/file/d/1sdtcwBx4Skbh3C4hO7g29hY5v8uihpPo/view?usp=drive_link'
+        download_url = 'https://drive.google.com/uc?id=' + gdrive_url.split('/')[-2]
+
         try:
-            df = pd.read_csv('Global_Superstore2.csv', encoding='latin1')
-        except FileNotFoundError:
-            try:
-                df = pd.read_excel('Global_Superstore2.xlsx')
-            except FileNotFoundError:
-                return None
+            df = pd.read_csv(download_url, encoding='latin1')
+        except Exception:
+            return None
     
     df['Order Date'] = pd.to_datetime(df['Order Date'], dayfirst=True, errors='coerce')
     df['Ship Date'] = pd.to_datetime(df['Ship Date'], dayfirst=True, errors='coerce')
