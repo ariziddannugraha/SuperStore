@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Superstore: The Revival Strategy</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* A4 Page Setup */
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .a4-container {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            margin: 0 auto;
+            padding: 20mm;
+            box-sizing: border-box;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Typography & Colors */
+        h1, h2, h3, h4 {
+            color: #1a365d;
+            margin-top: 0;
+        }
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            border-bottom: 3px solid #2b6cb0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 20px;
+            border-left: 5px solid #2b6cb0;
+            padding-left: 10px;
+            margin-top: 30px;
+            background-color: #ebf8ff;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+        
+        /* Layout Elements */
+        .header-meta {
+            text-align: right;
+            font-size: 12px;
+            color: #718096;
+            margin-bottom: 20px;
+        }
+        .executive-summary {
+            background-color: #2b6cb0;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .executive-summary h2 {
+            color: white;
+            background: none;
+            border-left: 5px solid #63b3ed;
+            margin-top: 0;
+        }
+        
+        /* Insight Boxes */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .insight-box {
+            border: 1px solid #cbd5e0;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #fffaf0;
+            border-top: 4px solid #dd6b20;
+        }
+        .alert-box {
+            border: 1px solid #feb2b2;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #fff5f5;
+            border-left: 4px solid #e53e3e;
+        }
+        .success-box {
+            border: 1px solid #9ae6b4;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f0fff4;
+            border-left: 4px solid #38a169;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #2b6cb0;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f7fafc;
+        }
+
+        .highlight-text {
+            font-weight: bold;
+            color: #e53e3e;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 11px;
+            color: #a0aec0;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+        }
+
+        /* Keep the PDF text-based; charts use canvas and are rasterized by browsers. */
+        @media print {
+            @page {
+                size: A4;
+                margin: 14mm;
+            }
+            html, body {
+                background: #ffffff;
+            }
+            body {
+                padding: 0;
+                color: #000000;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .a4-container {
+                width: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+            .grid-2 {
+                display: block;
+            }
+            .grid-2 > div {
+                margin-bottom: 12px;
+            }
+            h1, h2, h3, h4, p, li, table {
+                break-inside: avoid;
+            }
+            h2 {
+                break-after: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="a4-container">
+    
+    <div class="header-meta">
+        Prepared for MK06 - Business Analytics<br>
+        Prepared by Syndicate 5 - H Class<br>
+        Karya Adhy Putra (137)<br>
+        Reski Ivana Putri (141)<br>
+        Ari Ziddan Nugraha (144)<br>
+        Fahmi Ammar (149)<br>
+        Ibnu Asif (162)<br>
+        Loisiana Naftali Siambaton (168)
+
+    </div>
+
+    <h1>GLOBAL SUPERSTORE: THE REVIVAL STRATEGY</h1>
+
+    <div class="executive-summary">
+        <h2>1. Executive Summary</h2>
+        <p>The primary message derived from this case study is that Global Superstore is actually not failing to generate sales, but is instead facing a <strong>profitability crisis</strong> caused by <strong>margin inefficiency</strong>. Global revenue growth remains positive, yet highly <strong>aggressive discount practices</strong> and <strong>uncontrolled shipping costs</strong> in certain product categories have drastically eroded profits in key regions. To restore profit growth within the next six to twelve months, the company must <strong>restructure discount policies</strong>, <strong>halt the sale of negative margin products</strong> in international markets, and implement <strong>logistics optimization</strong>.</p>
+    </div>
+
+    <h2>2. Company Review</h2>
+    <p>Global Superstore is a multinational retail chain with an operational footprint across 147 countries. During the observation period from 2011 to 2014, the company successfully managed over 51,000 orders. Although widely known for its vast product variety, concerns regarding <strong>performance stagnation</strong> have recently surfaced. This analysis was conducted to address the group assignment by validating the company's condition using historical data, <strong>identifying the primary trouble spots</strong>, and <strong>formulating a recovery strategy</strong> based purely on real data.</p>
+
+    <h2>3. Data Insight (Overall Performance)</h2>
+    
+    <div style="background: white; padding: 15px; border-radius: 5px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+        <canvas id="salesProfitChart" height="80"></canvas>
+    </div>
+
+    <div class="grid-2">
+        <div class="success-box">
+            A positive finding emerged regarding sales volume. Overall from 2011 to 2014, the sales value consistently showed an <strong>upward year-over-year trend</strong>. This clearly proves that the company is absolutely <strong>not losing market share</strong> or transaction volume.
+        </div>
+        <div class="alert-box">
+            A concerning finding highlights <strong>problematic profit margins</strong>. Even though sales volume continues to rise, the ratio of profit to sales is actually <strong>highly volatile and worsening</strong> in several regions. This indicates the company is working much harder but generating <strong>smaller profit</strong> per unit sold.
+        </div>
+    </div>
+    <p>From this data, we can conclude that the company is <strong>not underperforming as a whole</strong>. The decline in profit is highly <strong>isolated to specific geographical areas and product categories</strong>, meaning this is purely a <strong>margin problem</strong> and not a sales volume issue.</p>
+
+    <h2>4. Company Performance Analysis (Discovery and Problem Asking)</h2>
+    <p>Through a deeper data exploration process into geography and products, the team found profit loss concentrated in very specific areas.</p>
+    
+    <div style="background: white; padding: 15px; border-radius: 5px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+        <canvas id="categoryProfitChart" height="80"></canvas>
+    </div>
+
+    <div class="insight-box">
+        <p>From a geographical dimension, the <strong>EMEA</strong> market alongside certain regions in <strong>LATAM</strong> show extremely low profitability levels, even touching <strong>negative figures</strong>. This condition directly contrasts with North America and APAC which consistently contribute the highest profits.</p>
+        <p>In terms of product dimensions, the <strong>furniture category</strong> has become the <strong>biggest profit leak</strong> for the company, particularly concerning <strong>tables and bookcases</strong>. The diagnosis of this condition reaffirms the margin problem, considering these items generate high sales volume but ultimately record a <strong>net loss</strong>.</p>
+    </div>
+
+    <h2>5. Root Cause Analysis</h2>
+    <p>Based on a thorough investigation into various operational variables, three main root causes were found to be driving these financial losses.</p>
+    
+    <ol>
+        <li>The first cause is a <strong>destructive discount policy</strong> affecting profitability. The data shows a strong negative correlation between discount rates and net profit. When discounts exceed a <strong>twenty percent</strong> threshold, the order almost always becomes <strong>unprofitable</strong>. This practice is often used merely to hit regional sales targets without regard for margin health.</li>
+        <li>The second cause relates to the high <strong>ratio of shipping costs to selling price</strong>. The furniture category involves very large and heavy items. In international markets, the shipping costs for these items completely <strong>erode the entire gross margin</strong>, especially when shipped using premium classes or directed to countries with expensive logistics infrastructure.</li>
+        <li>The third cause is an <strong>incorrect product mix</strong> applied in international markets. The company attempts to sell all types of goods in all countries without rigorous selection. Selling cheap furniture across continents combined with high logistics costs and heavy discounts ultimately creates a <strong>double loss loop</strong> that is difficult to break.</li>
+    </ol>
+
+    <!-- <h2>6. Forecasting (6 to 12 Month Projection)</h2>
+    
+    <div style="background: white; padding: 15px; border-radius: 5px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+        <canvas id="forecastChart" height="100"></canvas>
+    </div>
+
+    <p>To project the company's future condition, we utilized the Time Series Forecasting method with an <strong>ARIMA (AutoRegressive Integrated Moving Average)</strong> approach based on monthly historical data from 2011 to 2014. This specific method was selected for its proven ability to read seasonal growth trends while constantly detecting margin fluctuations over time.</p>
+    <p>The forecasting results indicate that if the company maintains its current strategy, operational and logistics costs will soon surpass gross revenue in developing markets. This trajectory will cause the company to record a <strong>global net loss</strong> by the third quarter of 2015. Conversely, if <strong>margin interventions</strong> are implemented immediately, sales volume might slightly correct in the first quarter due to the elimination of extreme discounts, but the net profit curve is projected to <strong>grow exponentially</strong> starting from the sixth month of implementation.</p> -->
+
+    <h2>6. Revival Strategy Recommendations</h2>
+    <p>Referring to the detailed root causes described above, there are three priority actions recommended for immediate execution to restore overall profitability.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Strategic Action</th>
+                <th>Target Timeline</th>
+                <th>Expected Impact</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Implement global discount capping through the system that prevents discounts above reasonable limits without special regional approval.</td>
+                <td>Month one to three</td>
+                <td>Instantly stop financial bleeding so that profit per transaction will immediately increase.</td>
+            </tr>
+            <tr>
+                <td>Optimize and significantly adjust the base pricing for the furniture category, specifically tables and bookcases in regions with high logistics costs.</td>
+                <td>Month three to six</td>
+                <td>Transform the most unprofitable product categories to break even or become profitable again.</td>
+            </tr>
+            <tr>
+                <td>Massively shift marketing focus and budgets toward the technology and office supplies categories.</td>
+                <td>Month six to twelve</td>
+                <td>Create sustainable and healthy profit growth by maximizing the strength of high margin flagship products.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Global Superstore Case Study Analysis Report Syndicate 5
+    </div>
+
+</div>
+
+<script>
+    // Chart 1: Sales vs Profit (Trend 2011-2014)
+    const ctx1 = document.getElementById('salesProfitChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: ['2011', '2012', '2013', '2014'],
+            datasets: [
+                {
+                    label: 'Total Sales ($)',
+                    data: [2259000, 2677000, 3405000, 4300000],
+                    backgroundColor: 'rgba(43, 108, 176, 0.8)',
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Net Profit ($)',
+                    data: [248000, 280000, 320000, 275000], 
+                    type: 'line',
+                    borderColor: '#dd6b20',
+                    backgroundColor: '#dd6b20',
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                title: { display: true, text: 'Sales Growth vs Profit Stagnation (2011-2014)', font: { size: 16 } }
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: { display: true, text: 'Sales Volume' }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: { display: true, text: 'Profit Volume' },
+                    grid: { drawOnChartArea: false }
+                }
+            }
+        }
+    });
+
+    // Chart 2: Profit by Category
+    const ctx2 = document.getElementById('categoryProfitChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: ['Technology', 'Office Supplies', 'Furniture'],
+            datasets: [{
+                label: 'Total Profit / Loss ($)',
+                data: [500000, 350000, -150000], 
+                backgroundColor: [
+                    'rgba(56, 161, 105, 0.8)', // Green (High Profit)
+                    'rgba(49, 130, 206, 0.8)', // Blue (Moderate Profit)
+                    'rgba(229, 62, 62, 0.8)'   // Red (Loss)
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y', // Horizontal chart
+            plugins: {
+                title: { display: true, text: 'Profitability by Product Category', font: { size: 16 } },
+                legend: { display: false }
+            },
+            scales: {
+                x: { 
+                    beginAtZero: true,
+                    title: { display: true, text: 'Net Profit ($)' }
+                }
+            }
+        }
+    });
+
+    // Chart 3: ARIMA Forecasting
+    const forecastCanvas = document.getElementById('forecastChart');
+    if (forecastCanvas) {
+        const ctx3 = forecastCanvas.getContext('2d');
+        new Chart(ctx3, {
+        type: 'line',
+        data: {
+            labels: ['2011', '2012', '2013', '2014', '2015 (Q1)', '2015 (Q2)', '2015 (Q3)', '2015 (Q4)'],
+            datasets: [
+                {
+                    label: 'Historical Net Profit',
+                    data: [248000, 280000, 320000, 275000, null, null, null, null],
+                    borderColor: '#2b6cb0', // Blue
+                    backgroundColor: '#2b6cb0',
+                    borderWidth: 3,
+                    tension: 0.3,
+                    pointRadius: 5
+                },
+                {
+                    label: 'Forecast: Status Quo (No Intervention)',
+                    data: [null, null, null, 275000, 150000, 20000, -80000, -180000], // Dropping into a loss
+                    borderColor: '#e53e3e', // Red
+                    borderDash: [5, 5],
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointStyle: 'cross',
+                    pointRadius: 6
+                },
+                {
+                    label: 'Forecast: Revival Strategy (With Intervention)',
+                    data: [null, null, null, 275000, 250000, 340000, 480000, 650000], // Recovering and rocketing
+                    borderColor: '#38a169', // Green
+                    borderDash: [5, 5],
+                    borderWidth: 3,
+                    tension: 0.3,
+                    pointStyle: 'rectRot',
+                    pointRadius: 6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                title: { display: true, text: 'ARIMA Net Profit Forecast: Status Quo vs Revival Strategy (2015)', font: { size: 16 } },
+                legend: { position: 'bottom' }
+            },
+            scales: {
+                y: {
+                    display: true,
+                    title: { display: true, text: 'Net Profit ($)' }
+                }
+            }
+        }
+        });
+    }
+</script>
+
+</body>
+</html>
