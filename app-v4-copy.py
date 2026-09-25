@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+# from statsmodels.tsa.arima.model import ARIMA
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
@@ -100,6 +101,33 @@ st.markdown("""
         border-radius: 6px;
         font-size: 0.8rem;
         font-weight: 600;
+    }
+    .action-plan {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .action-plan th,
+    .action-plan td {
+        padding: 16px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+        vertical-align: top;
+        color: #334155;
+        line-height: 1.5;
+    }
+    .action-plan th {
+        background-color: #eff6ff;
+        color: #1e3a8a;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+    .action-plan tr:last-child td {
+        border-bottom: 0;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -222,12 +250,11 @@ layout_config = dict(
 )
 
 # --- TABS ---
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4 = st.tabs([
     "📈 Overall Performance", 
     "🎯 Problem Areas", 
     "🔍 Root Cause Analysis", 
     "🚀 Revival Strategy",
-    "🔮 Forecasting"
 ])
 
 # ==========================================
@@ -402,108 +429,31 @@ with tab4:
     st.write("Skala pendapatan global stabil, namun kebocoran profit terjadi secara masif pada transaksi dengan diskon tak terkontrol dan inefisiensi logistik pengiriman kilat. Tiga inisiatif strategis wajib dieksekusi:")
     st.write("")
 
-    col_s1, col_s2, col_s3 = st.columns(3, gap="medium")
-    
-    with col_s1:
-        st.markdown("""
-        <div class="strategy-card">
-            <span class="badge">Prioritas 1</span>
-            <h4 style="margin-top: 15px;">Kebijakan Batas Diskon</h4>
-            <p><b>Akar Masalah:</b> Diskon >20% menggerus profit hingga minus.</p>
-            <p><b>Tindakan:</b> Kunci sistem agar batas maksimal diskon 15%. Diskon lebih dari itu wajib melewati <i>approval</i> level manajer.</p>
-            <p><b>Target:</b> Recovery margin profit di atas 14%.</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    with col_s2:
-        st.markdown("""
-        <div class="strategy-card">
-            <span class="badge">Prioritas 2</span>
-            <h4 style="margin-top: 15px;">Rasionalisasi Logistik</h4>
-            <p><b>Akar Masalah:</b> Margin hilang akibat biaya <i>Same Day / First Class</i> pada order <i>Critical</i>.</p>
-            <p><b>Tindakan:</b> Negosiasi ulang kontrak vendor atau bebankan sebagian biaya premium langsung ke pelanggan.</p>
-            <p><b>Target:</b> Menurunkan rasio beban ongkos kirim sebesar 15%.</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    with col_s3:
-        st.markdown("""
-        <div class="strategy-card">
-            <span class="badge">Prioritas 3</span>
-            <h4 style="margin-top: 15px;">Restrukturisasi Wilayah</h4>
-            <p><b>Akar Masalah:</b> Beban kerugian terkonsentrasi di 10 negara spesifik.</p>
-            <p><b>Tindakan:</b> Hentikan penjualan sub-kategori yang terbukti rugi di negara tersebut, dan sesuaikan harga dasar (<i>base price</i>).</p>
-            <p><b>Target:</b> Meningkatkan profit region terdampak sebesar 25%.</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-# ==========================================
-# TAB 5: FORECASTING
-# ==========================================
-with tab5:
-    st.markdown("#### Proyeksi Penjualan (12 Bulan Kedepan)")
-    
-    # Agregasi data bulanan
-    monthly_sales = df.groupby('Year-Month')['Sales'].sum().reset_index()
-    monthly_sales['Date'] = pd.to_datetime(monthly_sales['Year-Month'])
-    monthly_sales = monthly_sales.sort_values('Date')
-    
-    # Kalkulasi regresi linear (Trend) menggunakan numpy
-    x_hist = np.arange(len(monthly_sales))
-    y_hist = monthly_sales['Sales'].values
-    
-    z = np.polyfit(x_hist, y_hist, 1) # Degree 1 untuk garis lurus
-    p = np.poly1d(z)
-    
-    # Buat titik waktu masa depan (12 bulan)
-    last_date = monthly_sales['Date'].iloc[-1]
-    future_dates = [last_date + pd.DateOffset(months=i) for i in range(1, 13)]
-    x_future = np.arange(len(monthly_sales), len(monthly_sales) + 12)
-    y_future = p(x_future)
-    
-    fig_forecast = go.Figure()
-    
-    # Plot Data Historis
-    fig_forecast.add_trace(go.Scatter(
-        x=monthly_sales['Date'], 
-        y=monthly_sales['Sales'],
-        mode='lines', 
-        name='Data Aktual',
-        line=dict(color='#2563eb', width=2)
-    ))
-    
-    # Plot Garis Forecast Historis (agar menyambung)
-    fig_forecast.add_trace(go.Scatter(
-        x=monthly_sales['Date'], 
-        y=p(x_hist),
-        mode='lines', 
-        name='Garis Tren Historis',
-        line=dict(color='#94a3b8', width=1, dash='dot')
-    ))
-    
-    # Plot Proyeksi 12 Bulan Kedepan
-    fig_forecast.add_trace(go.Scatter(
-        x=future_dates, 
-        y=y_future,
-        mode='lines+markers', 
-        name='Proyeksi 12 Bulan',
-        line=dict(color='#ef4444', width=3, dash='dash')
-    ))
-    
-    fig_forecast.update_layout(
-        **layout_config, 
-        height=500, 
-        yaxis_title="Total Sales ($)",
-        hovermode="x unified"
-    )
-    fig_forecast.update_yaxes(gridcolor='#f1f5f9')
-    st.plotly_chart(fig_forecast, use_container_width=True)
-
-    # Analisis Angka Forecast
-    sales_growth = ((y_future[-1] - y_future[0]) / y_future[0]) * 100
-    
-    col_f1, col_f2 = st.columns(2, gap="large")
-    with col_f1:
-        st.info(f"Berdasarkan lintasan historis, tren penjualan diproyeksikan tumbuh **{sales_growth:.2f}%** selama 12 bulan ke depan (hanya menghitung momentum basis).")
-    with col_f2:
-        st.warning("Model regresi linear ini tidak menangkap efek musiman (seasonality) seperti lonjakan akhir tahun. Fokuskan strategi pada peningkatan margin, bukan sekadar mengejar volume proyeksi ini.")
+    st.markdown("""
+    <table class="action-plan">
+        <thead>
+            <tr>
+                <th>Strategic Initiative</th>
+                <th>Timeline</th>
+                <th>Expected Outcome</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Implement global discount capping through the system that prevents discounts above reasonable limits without special regional approval.</td>
+                <td>Month one to three</td>
+                <td>Instantly stop financial bleeding so that profit per transaction will immediately increase.</td>
+            </tr>
+            <tr>
+                <td>Optimize and significantly adjust the base pricing for the furniture category, specifically tables and bookcases in regions with high logistics costs.</td>
+                <td>Month three to six</td>
+                <td>Transform the most unprofitable product categories to break even or become profitable again.</td>
+            </tr>
+            <tr>
+                <td>Massively shift marketing focus and budgets toward the technology and office supplies categories.</td>
+                <td>Month six to twelve</td>
+                <td>Create sustainable and healthy profit growth by maximizing the strength of high margin flagship products.</td>
+            </tr>
+        </tbody>
+    </table>
+    """, unsafe_allow_html=True)
